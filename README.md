@@ -2,7 +2,7 @@
 
 This tool automatically converts Japanese **EPUB books** into organized **Anki Decks**. It reads the book chapter-by-chapter, extracts vocabulary, looks up definitions in **JMdict**, and creates a study deck that follows the book's progression.
 
-## ✨ Features
+## Features
 
 - **Chapter-Based Subdecks:** Creates a separate deck for each chapter (e.g., `Book::01_Chapter 1`, `Book::02_Chapter 2`).
 - **Incremental Progression:** Words learned in Chapter 1 are **skipped** in Chapter 2. You only study _new_ words for each section.
@@ -12,7 +12,7 @@ This tool automatically converts Japanese **EPUB books** into organized **Anki D
 
 ---
 
-## 🚀 Quick Start (Read This First!)
+## Quick Start (Read This First!)
 
 Before running the python script, you **must** run the setup script. This downloads the necessary Japanese dictionary and installs dependencies.
 
@@ -23,13 +23,19 @@ You will need [uv](https://github.com/astral-sh/uv) installed to manage dependen
 **MacOS/Linux:**
 
 ```bash
-curl -lsSf [https://astral.sh/uv/install.sh](https://astral.sh/uv/install.sh) | sh
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
 **Windows (PowerShell):**
 
 ```bash
-powershell -c "irm [https://astral.sh/uv/install.ps1](https://astral.sh/uv/install.ps1) | iex"
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+**Or, from PyPI:**
+
+```
+pip install uv
 ```
 
 ### 2. Run Setup
@@ -52,7 +58,7 @@ chmod +x setup.sh
 2. Download the `jmdict-examples-eng-3.6.2.json` file and place it inside.
 3. Run `uv sync` in your terminal.
 
-## 📖 Usage Once the setup is complete, you can generate your Anki deck.
+## Usage Once the setup is complete, you can generate your Anki deck.
 
 ### 1. Run the script:
 
@@ -78,19 +84,18 @@ Paste .epub Book Path: "C:\Books\MyJapaneseBook.epub"
 - Double-click the file to import it into Anki.
 - The decks will automatically organize themselves into a folder structure.
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 .
 ├── dict/                   # Created by setup.sh (contains dictionary JSON)
-├── exports/                # Generated Anki decks are saved here
 ├── main.py                 # The magic logic
 ├── setup.sh                # run this FIRST!
 ├── pyproject.toml          # Dependency list
 └── README.md               # You are here
 ```
 
-### 🛠 Troubleshooting
+### Troubleshooting
 
 **"Dictionary not found" Error**
 
