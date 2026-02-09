@@ -2,6 +2,9 @@
 
 This tool automatically converts Japanese **EPUB books** into organized **Anki Decks**. It reads the book chapter-by-chapter, extracts vocabulary, looks up definitions in **JMdict**, and creates a study deck that follows the book's progression.
 
+### Notice!!!
+I am currently working on a `cli` and also an `app w/ UI` based design of this project. Both of them will be written in `rust` and the app version will use `Tauri` as the framework. This is done to lessen the hassle of downloading packages from `pip` using `uv` and etc. Stay tune until then!
+
 ## Features
 
 - **Chapter-Based Subdecks:** Creates a separate deck for each chapter (e.g., `Book::01_Chapter 1`, `Book::02_Chapter 2`).
