@@ -1,36 +1,53 @@
-# 📚 EPUB to Anki Generator (Japanese)
+# EPUB to Anki Generator (Japanese)
 
 This tool automatically converts Japanese **EPUB books** into organized **Anki Decks**. It reads the book chapter-by-chapter, extracts vocabulary, looks up definitions in **JMdict**, and creates a study deck that follows the book's progression.
 
+<<<<<<< HEAD
 ### Notice!!!
 I am currently working on a `cli` and also an `app w/ UI` based design of this project. Both of them will be written in `rust` and the app version will use `Tauri` as the framework. This is done to lessen the hassle of downloading packages from `pip` using `uv` and etc. Stay tune until then!
 
+=======
+>>>>>>> 815130e (More accesible download dependencies system)
 ## Features
 
-- **Chapter-Based Subdecks:** Creates a separate deck for each chapter (e.g., `Book::01_Chapter 1`, `Book::02_Chapter 2`).
-- **Incremental Progression:** Words learned in Chapter 1 are **skipped** in Chapter 2. You only study _new_ words for each section.
-- **Smart Frequency Sorting:** Words are sorted by how often they appear in that specific chapter.
-- **Context Sentences:** Extracts real example sentences from the dictionary.
-- **Clean Anki Cards:** Includes reading (furigana), meaning, and styling.
+- **Chapter-Based Subdecks:** Creates a separate deck for each chapter
+- **Incremental Progression:** Words learned in Chapter 1 are **skipped** in Chapter 2
+- **Smart Frequency Sorting:** Words are sorted by how often they appear
+- **Context Sentences:** Extracts real example sentences from the dictionary
+- **Clean Anki Cards:** Includes reading (furigana), meaning, and styling
 
 ---
 
+<<<<<<< HEAD
 ## Quick Start (Read This First!)
+=======
+## Quick Start
+>>>>>>> 815130e (More accesible download dependencies system)
 
-Before running the python script, you **must** run the setup script. This downloads the necessary Japanese dictionary and installs dependencies.
+### Windows
 
-### 1. Prerequisites
+1. **Double-click `setup.bat`** and follow the prompts
+2. **Run the app:** Double-click `main.py` or run `python main.py` in terminal
+3. **Import:** The script creates an `.apkg` file - double-click to import into Anki
 
-You will need [uv](https://github.com/astral-sh/uv) installed to manage dependencies and the python environment.
+### Mac / Linux
 
-**MacOS/Linux:**
+1. Open terminal in this folder
+2. Run: `pip install -r requirements.txt`
+3. Run: `./setup.sh` (or manually download the dictionary to `dict/` folder)
+4. Run: `python main.py`
 
+<<<<<<< HEAD
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
+=======
+---
+>>>>>>> 815130e (More accesible download dependencies system)
 
-**Windows (PowerShell):**
+## Usage
 
+<<<<<<< HEAD
 ```bash
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
@@ -99,15 +116,24 @@ Paste .epub Book Path: "C:\Books\MyJapaneseBook.epub"
 ```
 
 ### Troubleshooting
+=======
+1. Run the script: `python main.py`
+2. Paste your EPUB path (drag and drop the file into terminal)
+3. Choose: Include particles/grammar? (y/n)
+   - `y`: Everything (desu, wa, ga, etc.)
+   - `n`: Only content words (nouns, verbs, adjectives) - Recommended for vocab mining
+4. The `.apkg` file is created in the same folder as your EPUB
+5. Double-click to import into Anki
+
+## Troubleshooting
+>>>>>>> 815130e (More accesible download dependencies system)
 
 **"Dictionary not found" Error**
+- Did you run setup.bat/setup.sh? The dictionary file is needed in the `dict/` folder.
 
-- Did you run ./setup.sh? The script needs the JSON dictionary file in the dict/ folder to look up words.
+**"Python is not recognized" Error**
+- Install Python from https://www.python.org/downloads/
+- Make sure to check "Add Python to PATH" during installation
 
-**The Chapter Names look weird (e.g., "Section p-0012")**
-
-- This happens if the EPUB does not have a Table of Contents (TOC). The script tries to fall back to HTML headers, but if those are missing too, it uses the internal file ID to ensure no data is lost.
-
-**I see "Permission denied" when running setup.sh**
-
-- Run chmod +x setup.sh in your terminal to give it run permissions.
+**Permission denied (Mac/Linux)**
+- Run `chmod +x setup.sh` in terminal

@@ -33,7 +33,14 @@ unzip -o dict.zip -d "$DEST_DIR"
 echo "Cleaning up..."
 rm dict.zip
 
-echo "Initializing uv"
-uv sync
+echo "Initializing dependencies"
+if command -v uv &> /dev/null; then
+    uv sync
+elif command -v pip &> /dev/null; then
+    pip install -r requirements.txt
+else
+    echo "Error: Neither uv nor pip found. Please install Python from https://python.org"
+    exit 1
+fi
 
 echo "Done."
