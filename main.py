@@ -43,7 +43,7 @@ def load_dictionary():
         for r in entry.get("kana", []):
             dict_index[r["text"]].append(entry)
 
-    console.print(f"[green]Dictionary loaded.[/green]")
+    console.print("[green]Dictionary loaded.[/green]")
     return dict_index
 
 
