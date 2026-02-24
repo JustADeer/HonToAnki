@@ -1,9 +1,9 @@
 [project]
 name = "hontoanki"
 version = "0.1.0"
-description = "Add your description here"
+description = "Convert Japanese EPUB books to Anki decks"
 readme = "README.md"
-requires-python = ">=3.11.9"
+requires-python = ">=3.11"
 dependencies = [
     "beautifulsoup4>=4.14.3",
     "ebooklib>=0.20",
@@ -12,3 +12,15 @@ dependencies = [
     "orjson>=3.11.6",
     "rich>=14.3.2",
 ]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+]
+
+[project.scripts]
+hontoanki = "main:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

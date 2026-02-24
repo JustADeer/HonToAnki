@@ -21,7 +21,8 @@ from rich.prompt import Confirm, Prompt
 console = Console()
 tagger = fugashi.Tagger()
 jp_re = reCompile(r"[^\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFFー]")
-DICT_PATH = r"dict\jmdict-examples-eng-3.6.2.json"
+DICT_DIR = Path(__file__).parent / "dict"
+DICT_PATH = DICT_DIR / "jmdict-examples-eng-3.6.2.json"
 
 
 # --- 1. DICTIONARY LOADING (Unchanged) ---
@@ -85,7 +86,7 @@ def get_toc_map(toc, _map=None):
     return _map
 
 
-def get_book_data(epub_path):
+def get_book_data(epub_path: str):
     book = epub.read_epub(epub_path)
     title_meta = book.get_metadata("DC", "title")
     book_title = title_meta[0][0] if title_meta else epub_path.stem
@@ -336,8 +337,9 @@ if __name__ == "__main__":
         console.print("[bold red]No cards generated![/bold red]")
         exit()
 
-    Path("exports").mkdir(exist_ok=True)
-    out_path = f"{epub_path.parent}/{book_title}_Vocab.apkg"
+    exports_dir = Path(__file__).parent / "exports"
+    exports_dir.mkdir(exist_ok=True)
+    out_path = exports_dir / f"{book_title}_Vocab.apkg"
 
     # Pack all subdecks into one .apkg file
     genanki.Package(decks).write_to_file(out_path)
