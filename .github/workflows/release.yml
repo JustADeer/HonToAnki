@@ -44,6 +44,8 @@ jobs:
           python-version: '3.11'
           cache: pip
       - run: pip install briefcase
+      - name: Build unidic-lite from source (no arm64 wheel)
+        run: pip install unidic-lite --no-binary unidic-lite
       - name: Inject version from tag
         run: sed -i "" "s/^version = .*/version = \"${{ needs.set-version.outputs.version }}\"/" pyproject.toml
       - run: python build.py macos
@@ -58,14 +60,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-          cache: pip
-      - run: pip install briefcase
+      - run: pip3 install briefcase
       - name: Inject version from tag
         run: sed -i "s/^version = .*/version = \"${{ needs.set-version.outputs.version }}\"/" pyproject.toml
-      - run: python build.py linux
+      - name: Build
+        run: python3 build.py linux
       - uses: actions/upload-artifact@v4
         with:
           name: linux
