@@ -1,52 +1,132 @@
-# EPUB to Anki Generator (Japanese)
+# HonToAnki
 
-This tool automatically converts Japanese **EPUB books** into organized **Anki Decks**. It reads the book chapter-by-chapter, extracts vocabulary, looks up definitions in **JMdict**, and creates a study deck that follows the book's progression.
+Convert Japanese EPUB books into Anki flashcard decks. Extracts vocabulary chapter-by-chapter, looks up definitions from JMdict, and generates organized Anki decks that follow the book's progression.
 
 ## Features
 
-- **Chapter-Based Subdecks:** Creates a separate deck for each chapter
-- **Incremental Progression:** Words learned in Chapter 1 are **skipped** in Chapter 2
-- **Smart Frequency Sorting:** Words are sorted by how often they appear
-- **Context Sentences:** Extracts real example sentences from the dictionary
-- **Clean Anki Cards:** Includes reading (furigana), meaning, and styling
-
----
+- **Chapter-based subdecks** -- each book chapter becomes a separate subdeck
+- **Incremental learning** -- words already seen in earlier chapters are skipped in later ones
+- **Frequency sorting** -- words within each chapter are ordered by occurrence count
+- **Dictionary lookup** -- automatically downloads JMdict on first run (English includes example sentences)
+- **Multi-language support** -- Japanese definitions available in 9 languages: English, Spanish, French, German, Russian, Dutch, Hungarian, Swedish, Slovenian
+- **Headless mode** -- CLI flags for scripting and automation
+- **Self-contained** -- no external dependencies for end users (pre-built binaries available)
 
 ## Quick Start
 
-### Windows
+### Pre-built binary
 
-1. **Double-click `setup.bat`** and follow the prompts
-2. **Run the app:** Double-click `main.py` or run `python main.py` in terminal
-3. **Import:** The script creates an `.apkg` file - double-click to import into Anki
+Download the latest release for your platform from the [Releases](https://github.com/shaqu/hontoanki/releases) page.
 
-### Mac / Linux
+| Platform | Installer | Portable |
+|----------|-----------|----------|
+| Windows | HonToAnki.msi (adds to PATH) | HonToAnki.zip (unzip and run) |
+| macOS | HonToAnki.pkg (adds to PATH) | HonToAnki.zip (unzip and run) |
+| Linux | .deb / .rpm | HonToAnki.AppImage |
 
-1. Open terminal in this folder
-2. Run: `pip install -r requirements.txt`
-3. Run: `./setup.sh` (or manually download the dictionary to `dict/` folder)
-4. Run: `python main.py`
+Run `hontoanki` from your terminal. On first run, the JMdict dictionary downloads automatically (~120 MB for English).
 
----
+### Running from source
+
+Requires Python 3.11+ and pip:
+
+```bash
+git clone <repo>
+cd HonToAnki
+pip install -e .
+hontoanki --epub book.epub
+```
+
+To install with dev dependencies (testing, building):
+
+```bash
+pip install -e ".[dev]"
+```
 
 ## Usage
 
-1. Run the script: `python main.py`
-2. Paste your EPUB path (drag and drop the file into terminal)
-3. Choose: Include particles/grammar? (y/n)
-   - `y`: Everything (desu, wa, ga, etc.)
-   - `n`: Only content words (nouns, verbs, adjectives) - Recommended for vocab mining
-4. The `.apkg` file is created in the same folder as your EPUB
-5. Double-click to import into Anki
+### Interactive mode
+
+```
+hontoanki
+```
+
+Prompts you for:
+1. Dictionary language (defaults to English, persists via `--set-default-lang`)
+2. EPUB file path
+3. Whether to include particles and grammar words
+
+### Headless mode
+
+```
+hontoanki --epub book.epub --lang spa
+hontoanki --epub book.epub --lang ger --particles --output ./my_decks --json
+```
+
+Options:
+
+| Flag | Description |
+|------|-------------|
+| `-e, --epub PATH` | EPUB file path (enables headless mode) |
+| `-l, --lang CODE` | Dictionary language code (eng, spa, fre, ger, rus, dut, hun, swe, slv) |
+| `-p, --particles` | Include particles and grammar words |
+| `-o, --output DIR` | Output directory (default: ./exports) |
+| `-j, --json` | Also export vocabulary as JSON |
+| `--download-lang, --dl CODE` | Download dictionary for a language and exit |
+| `--set-default-lang CODE` | Persist default language for future runs |
+| `-v, --verbose` | Show detailed parsing info |
+
+### Managing dictionaries
+
+```bash
+# Download Spanish dictionary (one-time, cached)
+hontoanki --download-lang spa
+
+# Set German as default language
+hontoanki --set-default-lang ger
+
+# Download Spanish and set it as default
+hontoanki --dl spa --set-default-lang spa
+```
+
+Dictionaries are stored in the platform data directory:
+- Windows: `%APPDATA%/HonToAnki/dict/{lang}/`
+- macOS: `~/Library/Application Support/HonToAnki/dict/{lang}/`
+- Linux: `~/.local/share/HonToAnki/dict/{lang}/`
+
+### Building from source
+
+```bash
+# Install Briefcase
+pip install briefcase
+
+# Build all platforms
+python build.py all
+
+# Build portable ZIP for current platform
+python build.py portable
+
+# Build for a specific platform
+python build.py windows
+python build.py macos
+python build.py linux
+```
+
+## Card Format
+
+Each Anki card displays:
+
+- **Front:** The word in Japanese
+- **Back:** Reading (furigana), meaning (in the selected language), example sentence (English only), and chapter frequency tag
 
 ## Troubleshooting
 
-**"Dictionary not found" Error**
-- Did you run setup.bat/setup.sh? The dictionary file is needed in the `dict/` folder.
+**Dictionary download fails** -- Check your internet connection. The GitHub release redirect endpoint has generous rate limits, but the API fallback is restricted to 60 requests per hour for unauthenticated users.
 
-**"Python is not recognized" Error**
-- Install Python from https://www.python.org/downloads/
-- Make sure to check "Add Python to PATH" during installation
+**No Japanese content found** -- Ensure the EPUB contains Japanese text. Some EPUBs use image-based content that cannot be parsed. Try a different EPUB file.
 
-**Permission denied (Mac/Linux)**
-- Run `chmod +x setup.sh` in terminal
+**Build errors** -- Ensure Briefcase 0.4.2+ is installed. Windows builds require WiX Toolset; macOS builds require Xcode.
+
+## License
+
+MIT
