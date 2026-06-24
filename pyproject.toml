@@ -42,6 +42,7 @@ url = "https://github.com/shaqu/hontoanki"
 console_app = true
 supported = ["windows", "macos", "linux"]
 description = "Convert Japanese EPUB books to Anki decks"
+long_description = "A tool that reads Japanese EPUB files, extracts vocabulary using fugashi (MeCab) with UniDic, looks up definitions in JMdict, and generates Anki flashcard decks (.apkg) organized by chapter."
 sources = ["src/hontoanki"]
 requirement_installer_args = ["--find-links", "./wheels"]
 
