@@ -5,8 +5,8 @@ Build script for HonToAnki.
 Usage:
     python build.py all          # Build all platforms
     python build.py windows      # Windows MSI + ZIP
-    python build.py macos        # macOS PKG + ZIP
-    python build.py linux        # Linux AppImage + system packages
+    python build.py macos        # macOS PKG
+    python build.py linux        # Linux deb + rpm
     python build.py portable     # Portable ZIPs for current platform
 """
 import subprocess
@@ -50,8 +50,7 @@ def main():
     args = [a.lower() for a in sys.argv[1:]]
     if not args or "all" in args:
         build_platform("windows", [[], ["-p", "zip"]])
-        build_platform("macos", [["-p", "pkg", "--adhoc-sign"], ["-p", "zip"]])
-        build_platform("linux", [["-p", "appimage"]], fmt="appimage")
+        build_platform("macos", [["-p", "pkg", "--adhoc-sign"]])
         build_platform("linux", [["-p", "deb"], ["-p", "rpm"]], fmt="system")
         return
 
@@ -61,9 +60,9 @@ def main():
         if system == "Windows":
             build_platform("windows", [["-p", "zip"]])
         elif system == "Darwin":
-            build_platform("macos", [["-p", "zip"]])
+            build_platform("macos", [["-p", "pkg", "--adhoc-sign"]])
         else:
-            build_platform("linux", [["-p", "appimage"]], fmt="appimage")
+            build_platform("linux", [["-p", "deb"], ["-p", "rpm"]], fmt="system")
         return
 
     for a in args:
@@ -71,9 +70,8 @@ def main():
         if plat == "windows":
             build_platform("windows", [[], ["-p", "zip"]])
         elif plat == "macos":
-            build_platform("macos", [["-p", "pkg", "--adhoc-sign"], ["-p", "zip"]])
+            build_platform("macos", [["-p", "pkg", "--adhoc-sign"]])
         elif plat == "linux":
-            build_platform("linux", [["-p", "appimage"]], fmt="appimage")
             build_platform("linux", [["-p", "deb"], ["-p", "rpm"]], fmt="system")
 
     if not any(a in PLATFORM_MAP for a in args):

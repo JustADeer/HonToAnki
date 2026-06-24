@@ -95,7 +95,5 @@ jobs:
             windows/*.msi
             windows/*.zip
             macos/*.pkg
-            macos/*.zip
-            linux/*.AppImage
             linux/*.deb
             linux/*.rpm
