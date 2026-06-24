@@ -24,6 +24,11 @@ jobs:
           python-version: '3.11'
           cache: pip
       - run: pip install briefcase
+      - name: Build unidic-lite wheel (no wheel on PyPI)
+        shell: bash
+        run: |
+          mkdir -p wheels
+          pip wheel unidic-lite -w wheels/ --no-deps
       - name: Inject version from tag
         shell: bash
         run: sed -i "s/^version = .*/version = \"${{ needs.set-version.outputs.version }}\"/" pyproject.toml
@@ -44,8 +49,10 @@ jobs:
           python-version: '3.11'
           cache: pip
       - run: pip install briefcase
-      - name: Build unidic-lite from source (no arm64 wheel)
-        run: pip install unidic-lite --no-binary unidic-lite
+      - name: Build unidic-lite wheel (no arm64 wheel on PyPI)
+        run: |
+          mkdir -p wheels
+          pip wheel unidic-lite -w wheels/ --no-deps
       - name: Inject version from tag
         run: sed -i "" "s/^version = .*/version = \"${{ needs.set-version.outputs.version }}\"/" pyproject.toml
       - run: python build.py macos
@@ -60,11 +67,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: pip3 install briefcase
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install briefcase
+      - name: Build unidic-lite wheel (no wheel on PyPI)
+        run: |
+          mkdir -p wheels
+          pip wheel unidic-lite -w wheels/ --no-deps
       - name: Inject version from tag
         run: sed -i "s/^version = .*/version = \"${{ needs.set-version.outputs.version }}\"/" pyproject.toml
-      - name: Build
-        run: python3 build.py linux
+      - run: python build.py linux
       - uses: actions/upload-artifact@v4
         with:
           name: linux
