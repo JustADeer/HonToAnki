@@ -18,11 +18,21 @@ def run(cmd, desc):
     subprocess.run(cmd, check=True)
 
 
-def build_platform(platform, package_args):
-    run(["briefcase", "create", platform], f"Create {platform} project")
-    run(["briefcase", "build", platform], f"Build {platform}")
+def build_platform(platform, package_args, fmt=None):
+    cmd = ["briefcase", "create", platform]
+    if fmt:
+        cmd.append(fmt)
+    run(cmd, f"Create {platform} {fmt or ''}")
+    cmd = ["briefcase", "build", platform]
+    if fmt:
+        cmd.append(fmt)
+    run(cmd, f"Build {platform} {fmt or ''}")
     for args in package_args:
-        run(["briefcase", "package", platform, *args], f"Package {platform} ({args or 'default'})")
+        cmd = ["briefcase", "package", platform]
+        if fmt:
+            cmd.append(fmt)
+        cmd.extend(args)
+        run(cmd, f"Package {platform} {fmt or ''} ({args or 'default'})")
 
 
 PLATFORM_MAP = {
@@ -41,7 +51,8 @@ def main():
     if not args or "all" in args:
         build_platform("windows", [[], ["-p", "zip"]])
         build_platform("macos", [["-p", "pkg"], ["-p", "zip"]])
-        build_platform("linux", [["-p", "appimage"], []])
+        build_platform("linux", [["-p", "appimage"]], fmt="appimage")
+        build_platform("linux", [["-p", "deb"], ["-p", "rpm"]], fmt="system")
         return
 
     if "portable" in args:
@@ -52,7 +63,7 @@ def main():
         elif system == "Darwin":
             build_platform("macos", [["-p", "zip"]])
         else:
-            build_platform("linux", [["-p", "appimage"]])
+            build_platform("linux", [["-p", "appimage"]], fmt="appimage")
         return
 
     for a in args:
@@ -62,7 +73,8 @@ def main():
         elif plat == "macos":
             build_platform("macos", [["-p", "pkg"], ["-p", "zip"]])
         elif plat == "linux":
-            build_platform("linux", [["-p", "appimage"], []])
+            build_platform("linux", [["-p", "appimage"]], fmt="appimage")
+            build_platform("linux", [["-p", "deb"], ["-p", "rpm"]], fmt="system")
 
     if not any(a in PLATFORM_MAP for a in args):
         print(__doc__)
