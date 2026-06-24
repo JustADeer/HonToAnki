@@ -74,8 +74,39 @@ jobs:
       - run: pip3 install briefcase
       - name: Inject version from tag
         run: sed -i "s/^version = .*/version = \"${{ needs.set-version.outputs.version }}\"/" pyproject.toml
-      - run: python3 build.py linux
+      - name: Configure RPM dist tag for Ubuntu
+        run: echo '%dist .elnoble' > ~/.rpmmacros
+      - name: Check RPM tools
+        run: |
+          rpm --version
+          rpmbuild --version
+          which rpmbuild
+          echo "=== Python version ==="
+          python3 --version
+          echo "=== RPM dist macro ==="
+          rpm --eval '%{?dist}'
+      - name: Build Linux packages
+        id: build
+        continue-on-error: true
+        run: python3 build.py linux
+      - name: Debug build failure
+        if: steps.build.outcome != 'success'
+        run: |
+          echo "=== Last 100 lines of spec file ==="
+          SPEC=$(find build/ -name "*.spec" 2>/dev/null | head -1)
+          if [ -n "$SPEC" ]; then
+            cat "$SPEC" | tail -100
+            echo "=== Package staging directory ==="
+            find build/hontoanki/linux/system -maxdepth 3 -type d 2>/dev/null
+            echo "=== RPM files anywhere ==="
+            find . -name "*.rpm" 2>/dev/null || echo "No RPM files found"
+          else
+            echo "No spec file found"
+            echo "=== Build tree ==="
+            find build/ -maxdepth 5 -type f 2>/dev/null | head -50 || echo "No build directory"
+          fi
       - uses: actions/upload-artifact@v4
+        if: steps.build.outcome == 'success'
         with:
           name: linux
           path: dist/
