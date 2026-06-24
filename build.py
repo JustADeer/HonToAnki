@@ -51,7 +51,7 @@ def main():
     if not args or "all" in args:
         build_platform("windows", [[], ["-p", "zip"]])
         build_platform("macos", [["-p", "pkg", "--adhoc-sign"]])
-        build_platform("linux", [["-p", "deb"], ["-p", "rpm"]], fmt="system")
+        build_platform("linux", [["-p", "rpm"], ["-p", "deb"]], fmt="system")
         return
 
     if "portable" in args:
@@ -62,7 +62,7 @@ def main():
         elif system == "Darwin":
             build_platform("macos", [["-p", "pkg", "--adhoc-sign"]])
         else:
-            build_platform("linux", [["-p", "deb"], ["-p", "rpm"]], fmt="system")
+            build_platform("linux", [["-p", "rpm"], ["-p", "deb"]], fmt="system")
         return
 
     for a in args:
@@ -72,7 +72,7 @@ def main():
         elif plat == "macos":
             build_platform("macos", [["-p", "pkg", "--adhoc-sign"]])
         elif plat == "linux":
-            build_platform("linux", [["-p", "deb"], ["-p", "rpm"]], fmt="system")
+            build_platform("linux", [["-p", "rpm"], ["-p", "deb"]], fmt="system")
 
     if not any(a in PLATFORM_MAP for a in args):
         print(__doc__)
