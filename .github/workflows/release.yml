@@ -67,18 +67,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: pip
-      - run: pip install briefcase
       - name: Build unidic-lite wheel (no wheel on PyPI)
         run: |
           mkdir -p wheels
-          pip wheel unidic-lite -w wheels/ --no-deps
+          pip3 wheel unidic-lite -w wheels/ --no-deps
+      - run: pip3 install briefcase
       - name: Inject version from tag
         run: sed -i "s/^version = .*/version = \"${{ needs.set-version.outputs.version }}\"/" pyproject.toml
-      - run: python build.py linux
+      - run: python3 build.py linux
       - uses: actions/upload-artifact@v4
         with:
           name: linux

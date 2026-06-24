@@ -44,3 +44,6 @@ supported = ["windows", "macos", "linux"]
 description = "Convert Japanese EPUB books to Anki decks"
 sources = ["src/hontoanki"]
 requirement_installer_args = ["--find-links", "./wheels"]
+
+[tool.briefcase.app.hontoanki.macOS]
+universal_build = false
