@@ -50,7 +50,7 @@ def main():
     args = [a.lower() for a in sys.argv[1:]]
     if not args or "all" in args:
         build_platform("windows", [[], ["-p", "zip"]])
-        build_platform("macos", [["-p", "pkg"], ["-p", "zip"]])
+        build_platform("macos", [["-p", "pkg", "--adhoc-sign"], ["-p", "zip"]])
         build_platform("linux", [["-p", "appimage"]], fmt="appimage")
         build_platform("linux", [["-p", "deb"], ["-p", "rpm"]], fmt="system")
         return
@@ -71,7 +71,7 @@ def main():
         if plat == "windows":
             build_platform("windows", [[], ["-p", "zip"]])
         elif plat == "macos":
-            build_platform("macos", [["-p", "pkg"], ["-p", "zip"]])
+            build_platform("macos", [["-p", "pkg", "--adhoc-sign"], ["-p", "zip"]])
         elif plat == "linux":
             build_platform("linux", [["-p", "appimage"]], fmt="appimage")
             build_platform("linux", [["-p", "deb"], ["-p", "rpm"]], fmt="system")
