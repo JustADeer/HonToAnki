@@ -38,20 +38,25 @@ def build_platform(platform, package_args, fmt=None):
 PLATFORM_MAP = {
     "win": "windows",
     "windows": "windows",
-    "window": "windows",
     "mac": "macos",
     "macos": "macos",
-    "osx": "macos",
     "linux": "linux",
+}
+
+
+PLATFORM_BUILD = {
+    "windows": ([[], ["-p", "zip"]], None),
+    "macos": ([["-p", "pkg", "--adhoc-sign"]], None),
+    "linux": ([["-p", "rpm"], ["-p", "deb"]], "system"),
 }
 
 
 def main():
     args = [a.lower() for a in sys.argv[1:]]
     if not args or "all" in args:
-        build_platform("windows", [[], ["-p", "zip"]])
-        build_platform("macos", [["-p", "pkg", "--adhoc-sign"]])
-        build_platform("linux", [["-p", "rpm"], ["-p", "deb"]], fmt="system")
+        for plat in ["windows", "macos", "linux"]:
+            pkg_args, fmt = PLATFORM_BUILD[plat]
+            build_platform(plat, pkg_args, fmt)
         return
 
     if "portable" in args:
@@ -67,12 +72,9 @@ def main():
 
     for a in args:
         plat = PLATFORM_MAP.get(a)
-        if plat == "windows":
-            build_platform("windows", [[], ["-p", "zip"]])
-        elif plat == "macos":
-            build_platform("macos", [["-p", "pkg", "--adhoc-sign"]])
-        elif plat == "linux":
-            build_platform("linux", [["-p", "rpm"], ["-p", "deb"]], fmt="system")
+        if plat in PLATFORM_BUILD:
+            pkg_args, fmt = PLATFORM_BUILD[plat]
+            build_platform(plat, pkg_args, fmt)
 
     if not any(a in PLATFORM_MAP for a in args):
         print(__doc__)

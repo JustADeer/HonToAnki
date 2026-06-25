@@ -1,14 +1,13 @@
+import re
 from dataclasses import dataclass
-from os import path as osPath
 from pathlib import Path
-from re import compile as reCompile
 
 import ebooklib
 from bs4 import BeautifulSoup
 from ebooklib import epub
 from rich.progress import track
 
-jp_re = reCompile(r"[^\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFFー]")
+jp_re = re.compile(r"[^\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFFー]")
 
 
 @dataclass
@@ -28,7 +27,7 @@ def get_toc_map(toc, _map=None):
     for item in toc:
         if isinstance(item, ebooklib.epub.Link):
             href = item.href.split("#")[0]
-            basename = osPath.basename(href)
+            basename = Path(href).name
             if basename not in _map:
                 _map[basename] = item.title
 
@@ -37,7 +36,7 @@ def get_toc_map(toc, _map=None):
 
             if hasattr(section_node, "href"):
                 href = section_node.href.split("#")[0]
-                basename = osPath.basename(href)
+                basename = Path(href).name
                 if basename not in _map:
                     _map[basename] = section_node.title
 
@@ -61,7 +60,7 @@ def get_book_data(epub_path: str | Path):
 
         if item.get_type() == ebooklib.ITEM_DOCUMENT:
             full_name = item.get_name()
-            basename = osPath.basename(full_name)
+            basename = Path(full_name).name
 
             if basename in toc_map:
                 current_chapter_title = toc_map[basename]

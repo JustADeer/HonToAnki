@@ -4,7 +4,6 @@ import time
 import zipfile
 from collections import defaultdict
 from pathlib import Path
-from urllib.error import HTTPError
 from urllib.request import urlopen, Request
 
 import orjson
@@ -23,7 +22,6 @@ from .config import LANGUAGES, get_data_dir
 console = Console()
 
 GITHUB_RELEASES = "https://github.com/scriptin/jmdict-simplified/releases"
-GITHUB_API = "https://api.github.com/repos/scriptin/jmdict-simplified/releases/latest"
 USER_AGENT = "HonToAnki/0.2.0"
 CACHE_TTL = 3600  # 1 hour
 
@@ -98,40 +96,12 @@ def _download_asset(url: str, dest_dir: Path, display_name: str):
     zip_path.unlink()
 
 
-def _find_asset_via_api(lang: str) -> str:
-    console.print("[yellow]Falling back to GitHub API...[/yellow]")
-
-    req = Request(GITHUB_API, headers={"User-Agent": USER_AGENT, "Accept": "application/json"})
-    with urlopen(req) as resp:
-        release = json.loads(resp.read().decode())
-
-    for a in release.get("assets", []):
-        name = a.get("name", "")
-        if lang == "eng":
-            if "jmdict-examples-eng" in name and name.endswith(".zip"):
-                return a["browser_download_url"]
-        else:
-            if f"jmdict-{lang}" in name and f"jmdict-examples-{lang}" not in name and name.endswith(".zip"):
-                return a["browser_download_url"]
-
-    raise RuntimeError(f"Could not find dictionary asset for language '{lang}' on GitHub release page.")
-
-
 def download_dictionary(dict_dir: Path, lang: str = "eng"):
     console.print("[bold]Dictionary not found. Downloading...[/bold]")
 
     tag = _get_latest_tag()
     asset_name = _get_asset_name(tag, lang)
     download_url = f"{GITHUB_RELEASES}/download/{_quote_tag(tag)}/{asset_name}"
-
-    req = Request(download_url, headers={"User-Agent": USER_AGENT}, method="HEAD")
-    try:
-        with urlopen(req):
-            pass
-    except HTTPError as e:
-        if e.code != 404:
-            raise
-        download_url = _find_asset_via_api(lang)
 
     _download_asset(download_url, dict_dir, asset_name)
 

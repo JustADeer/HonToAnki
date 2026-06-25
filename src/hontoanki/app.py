@@ -45,6 +45,13 @@ def pause():
     input("\nPress Enter to exit...")
 
 
+def _exit_or_pause(args, msg, code=1):
+    console.print(msg)
+    if args.epub:
+        sys.exit(code)
+    pause()
+
+
 def is_wanted_pos(node, include_particles):
     pos = node.feature.pos1
     if include_particles:
@@ -80,8 +87,24 @@ def _extract_lemmas(tagger, text, include_particles) -> list[str]:
     return lemmas
 
 
+def _chapter_words(tagger, text, dict_index, include_particles, seen, lang="eng"):
+    lemmas = _extract_lemmas(tagger, text, include_particles)
+    freq = Counter(lemmas)
+    result = []
+    for word in sorted(freq, key=lambda x: -freq[x]):
+        if word in seen:
+            continue
+        seen.add(word)
+        entries = dict_index.get(word, [])
+        if not entries:
+            continue
+        entry = extract_data(entries[0], lang)
+        result.append((word, entry, freq[word]))
+    return result
+
+
 def _process_chapters(tagger, chapters, model, dict_index, book_title, include_particles, lang="eng"):
-    global_seen_words = set()
+    seen = set()
     decks = []
     vocab_data = []
 
@@ -92,57 +115,42 @@ def _process_chapters(tagger, chapters, model, dict_index, book_title, include_p
             chapter_num = f"{i + 1:02d}"
             chapter_label = f"{chapter_num}_{chapter.title}"
 
-            lemmas = _extract_lemmas(tagger, chapter.text, include_particles)
-            freq = Counter(lemmas)
-            unique_words = sorted(freq, key=lambda x: -freq[x])
+            words = _chapter_words(tagger, chapter.text, dict_index, include_particles, seen, lang)
+            if not words:
+                progress.console.print(f"  [dim]- {chapter_label} (No new words)[/dim]")
+                progress.update(task, advance=1)
+                continue
 
             deck_name = f"{book_title} Vocab::{chapter_label}"
             deck = genanki.Deck(stable_id(deck_name), deck_name)
-            notes_added = 0
-            chapter_words = []
+            chapter_vocab = []
 
-            for word in unique_words:
-                if word in global_seen_words:
-                    continue
-                global_seen_words.add(word)
-
-                entries = dict_index.get(word, [])
-                if not entries:
-                    continue
-
-                entry = extract_data(entries[0], lang)
-                chapter_words.append({
+            for word, entry, freq in words:
+                chapter_vocab.append({
                     "word": str(word),
                     "reading": str(entry.reading),
                     "meaning": str(entry.meaning),
-                    "frequency": freq[word],
+                    "frequency": freq,
                     "example": str(entry.example),
                 })
-
-                note = genanki.Note(
+                deck.add_note(genanki.Note(
                     model=model,
                     fields=[
                         str(word), str(entry.reading), str(entry.meaning),
-                        f"Ch.{chapter_num} (Freq: {freq[word]})",
+                        f"Ch.{chapter_num} (Freq: {freq})",
                         str(entry.example),
                     ],
-                )
-                deck.add_note(note)
-                notes_added += 1
+                ))
 
-            if notes_added > 0:
-                decks.append(deck)
-
+            decks.append(deck)
             vocab_data.append({
                 "number": chapter_num,
                 "title": chapter.title,
-                "words": chapter_words,
+                "words": chapter_vocab,
             })
 
             progress.console.print(
-                f"  ({i + 1}) [green]✓[/green] {deck_name} ([bold]{notes_added}[/bold] new words)"
-                if notes_added > 0
-                else f"  [dim]- {deck_name} (No new words)[/dim]"
+                f"  ({i + 1}) [green]✓[/green] {deck_name} ([bold]{len(words)}[/bold] new words)"
             )
             progress.update(task, advance=1)
 
@@ -214,18 +222,15 @@ def main():
 
     if args.epub:
         epub_path = Path(args.epub)
-        if not epub_path.exists():
-            console.print(f"[bold red]File not found:[/bold red] {args.epub}")
-            sys.exit(1)
         include_particles = args.particles
     else:
         epub_input = Prompt.ask("\n[bold yellow]Paste .epub Book Path[/bold yellow]").strip('"')
         epub_path = Path(epub_input)
-        if not epub_path.exists():
-            console.print("[bold red]File not found![/bold red]")
-            pause()
-            return
         include_particles = Confirm.ask("Include particles/grammar?", default=False)
+
+    if not epub_path.exists():
+        _exit_or_pause(args, f"[bold red]File not found:[/bold red] {epub_path}")
+        return
 
     with console.status("[bold green]Reading EPUB spine...[/bold green]"):
         book_title, chapters = get_book_data(epub_path)
@@ -234,16 +239,14 @@ def main():
         console.print(f"[dim]Title: {book_title}, Chapters in TOC: {len(chapters)}[/dim]")
 
     if not chapters:
-        console.print("[bold red]No Japanese content found in this EPUB![/bold red]")
-        sys.exit(1) if args.epub else pause()
+        _exit_or_pause(args, "[bold red]No Japanese content found in this EPUB![/bold red]")
         return
 
     model = create_model()
     vocab_data, decks = _process_chapters(tagger, chapters, model, dict_index, book_title, include_particles, lang)
 
     if not decks:
-        console.print("[bold red]No cards generated![/bold red]")
-        sys.exit(1) if args.epub else pause()
+        _exit_or_pause(args, "[bold red]No cards generated![/bold red]")
         return
 
     output_dir = Path(args.output) if args.output else EXPORTS_DIR

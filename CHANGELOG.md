@@ -1,3 +1,5 @@
+* Fri Jun 26 2026 JustADeer <shaquillesouzan3@gmail.com> - 0.3.1
+  - Code cleanup: removed dead code, deduplicated build config, split _process_chapters
 * Wed Jun 24 2026 JustADeer <shaquillesouzan3@gmail.com> - 0.3.0
   - Build CI fixes, unidic-lite arm64 support, long_description
 * Fri Mar 14 2025 JustADeer <shaquillesouzan3@gmail.com> - 0.2.0
